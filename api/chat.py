@@ -14,14 +14,11 @@ ALLOWED_ORIGIN = os.environ.get(
 class handler(BaseHTTPRequestHandler):
 
    def add_cors_headers(self):
-       origin = self.headers.get("Origin", "")
-
-       if ALLOWED_ORIGIN and origin == ALLOWED_ORIGIN:
-           self.send_header(
-               "Access-Control-Allow-Origin",
-               origin
-           )
-           self.send_header("Vary", "Origin")
+        origin = self.headers.get("Origin", "")
+        # Enviar siempre el origen permitido
+        if not ALLOWED_ORIGIN or origin == ALLOWED_ORIGIN:
+            self.send_header("Access-Control-Allow-Origin", origin if origin else "*")
+            self.send_header("Vary", "Origin")
 
 
    def send_json(self, status_code, data):
@@ -46,28 +43,13 @@ class handler(BaseHTTPRequestHandler):
 
 
    def do_OPTIONS(self):
-       origin = self.headers.get("Origin", "")
-
-       if ALLOWED_ORIGIN and origin != ALLOWED_ORIGIN:
-           self.send_response(403)
-           self.end_headers()
-           return
-
-       self.send_response(204)
-       self.add_cors_headers()
-       self.send_header(
-           "Access-Control-Allow-Methods",
-           "POST, OPTIONS"
-       )
-       self.send_header(
-           "Access-Control-Allow-Headers",
-           "Content-Type"
-       )
-       self.send_header(
-           "Access-Control-Max-Age",
-           "86400"
-       )
-       self.end_headers()
+        # Responder 204 OK a la verificación preliminar de CORS
+        self.send_response(204)
+        self.add_cors_headers()
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Max-Age", "86400")
+        self.end_headers()
 
 
    def do_GET(self):
