@@ -1,5 +1,4 @@
-const API_URL =
-   "https://1-2-aplicaciones-web-ia-sooty.vercel.app/api/chat";
+const API_URL = "https://1-2-aplicaciones-web-ia-sooty.vercel.app/api/chat";
 
 const form = document.getElementById("chatForm");
 const input = document.getElementById("messageInput");
@@ -16,7 +15,13 @@ function addMessage(text, type) {
 
    const content = document.createElement("div");
    content.classList.add("message-content");
-   content.textContent = text;
+
+   // Si es la IA o un mensaje de error, renderizamos Markdown a HTML
+   if (type === "assistant" && typeof marked !== "undefined") {
+       content.innerHTML = marked.parse(text);
+   } else {
+       content.textContent = text;
+   }
 
    container.appendChild(label);
    container.appendChild(content);
